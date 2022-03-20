@@ -1,0 +1,4 @@
+__pycache__/
+blog.db
+.venv/
+startbootstrap-clean-blog-gh-pages/
