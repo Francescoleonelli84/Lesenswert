@@ -1,21 +1,26 @@
 from datetime import datetime
 import flask_login
 import pdb
+import os
+import os.path as op
 from flask import Flask, abort, render_template, request, redirect, session, url_for, flash
 from flask_login import LoginManager, UserMixin, login_required, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
-from flask_admin import Admin
+from flask_admin import Admin, form
 from flask_admin.contrib.sqla import ModelView
+from markupsafe import Markup
 
 
-app = Flask(__name__, template_folder='../templates',
-            static_folder='../static')
 
+app = Flask(__name__, template_folder='./templates',
+            static_folder='./static')
+
+app.config.from_pyfile('config.py')
 
 app.config['TESTING'] = False
 app.config['SECRET_KEY'] = 'secretkey'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/franc/OneDrive - HWR Berlin/Lesenswert/blog.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/franc/OneDrive/Dokumente/Lesenswert/blog.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = "smtp.gmail.com"
 app.config['MAIL_PORT'] = 465
@@ -47,8 +52,24 @@ class Blogpost(db.Model):
     date_posted = db.Column(db.DateTime)
     content = db.Column(db.Text)
 
+    
+class Image(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode(64))
+    path = db.Column(db.Unicode(128))
+
+
 
 db.create_all()
+
+
+
+# Create directory for file fields to use
+file_path = op.join(op.dirname(__file__), 'files')
+try:
+    os.mkdir(file_path)
+except OSError:
+    pass
 
 
 # create class to protect admin view, overwrites is_accessible method from Class ModelView
@@ -60,8 +81,33 @@ class SecureView(ModelView):
             abort(403)
 
 
+class ImageView(ModelView):
+    def _list_thumbnail(view, context, model, name):
+        if not model.path:
+            return ''
+        return Markup('<img src="%s">' % url_for('static',
+                                                 filename=form.thumbgen_filename(model.path)))
+
+    column_formatters = {
+        
+        'path': _list_thumbnail
+    }
+
+    # Alternative way to contribute field is to override it completely.
+    # In this case, Flask-Admin won't attempt to merge various parameters for the field.
+    form_extra_fields = {
+        'path': form.ImageUploadField('Image',
+                                      base_path=file_path,
+                                      thumbnail_size=(100, 100, True))
+    }
+
+
+
+
 #  create model for admin view
 admin.add_view(SecureView(Blogpost, db.session))
+# create model for image view
+admin.add_view(ImageView(Image, db.session))
 
 
 @app.route('/contact', methods=["POST", "GET"])
@@ -120,20 +166,20 @@ def user_loader(username):
 #     return user
 
 
-@app.route('/login', methods=["POST", "GET"])
+@app.route('/login', methods=["GET", "POST"])
 def login():
-    error = None
     if request.method == 'POST':
-        if request.form['username'] != 'admin' or \
-                request.form['pw'] != 'secret':
-            error = 'Invalid credentials. You should actually not be here ;)'
+        if request.form['username'] == 'admin' and \
+                request.form['pw'] == 'secret':
+            session['logged_in'] = True 
+            return redirect('/admin')
         else:
-            flash('You were successfully logged in')
-            session['logged_in'] = True
-            return redirect("/admin")
-    return render_template('login.html', error=error)
+            return render_template('login.html', failed = True)
+    return render_template('login.html')
 
 
+
+#secret page to add the post
 @app.route('/add')
 @login_required
 def add():

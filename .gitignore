@@ -1,4 +1,9 @@
 __pycache__/
 blog.db
-.venv/
+venv/
 startbootstrap-clean-blog-gh-pages/
+blog.db
+setup.bat
+img
+
+
