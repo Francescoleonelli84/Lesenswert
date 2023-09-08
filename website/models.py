@@ -1,0 +1,54 @@
+from flask import abort, session
+from . import db
+from flask_login import UserMixin
+from sqlalchemy.sql import func
+from flask_admin.contrib.sqla import ModelView
+
+class Blogpost(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(50))
+    subtitle = db.Column(db.String(50))
+    author = db.Column(db.String(20), db.ForeignKey(
+        'user.id', ondelete="CASCADE"), nullable=False)
+    date_posted = db.Column(db.DateTime)
+    content = db.Column(db.Text)
+    comments = db.relationship('Comment', backref='post', passive_deletes=True)
+
+
+    
+class Image(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode(64))
+    path = db.Column(db.Unicode(128))
+
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(150), unique=True)
+    username = db.Column(db.String(150), unique=True)
+    password = db.Column(db.String(150))
+    date_created = db.Column(db.DateTime(timezone=True), default=func.now())
+    posts = db.relationship('Blogpost', backref='user', passive_deletes=True)
+    comments = db.relationship('Comment', backref='user', passive_deletes=True)
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(200), nullable=False)
+    date_created = db.Column(db.DateTime(timezone=True), default=func.now())
+    author = db.Column(db.Integer, db.ForeignKey(
+        'user.id', ondelete="CASCADE"), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey(
+        'blogpost.id', ondelete="CASCADE"), nullable=False)
+
+
+class Comment_test(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(200), nullable=False)
+    username = db.Column(db.String(150), unique=True)
+    email =  db.Column(db.String(150), unique=True)
+    date_created = db.Column(db.DateTime(timezone=True), default=func.now())
+    approved = db.Column(db.Boolean, default=False)
+
+
+
