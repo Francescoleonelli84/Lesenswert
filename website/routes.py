@@ -12,7 +12,7 @@ from flask_mail import Mail, Message
 from flask_admin import Admin, expose
 from flask_admin.contrib.sqla import ModelView
 from markupsafe import Markup
-from .models import Blogpost, User, Comment_test, Comment, Image
+from .models import Blogpost, Comment_test, User
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from . import db, mail, app
@@ -33,32 +33,32 @@ class SecureView(ModelView):
 
 
 class CommentView(ModelView):
-
-    
     def approve_comment(view, context, model, name):
 
-        if model.is_approved:
-            return 'Approved'
-
-        approve_url = url_for('.approve_view')
+        approve_url = url_for('.approve_view', id =model.id)
         html = '''
                     <form action="{approve_url}" method="POST">
                     <button type='submit'>
                     Approve </button>
                      </form
             '''.format(approve_url=approve_url)
-        
+    
         return Markup(html)
     
     column_formatters = {
         'approved': approve_comment
     }
 
-    @expose('approve', methods=['POST'])
-    def  approve_view(self):
-        # model = self.get_one(id)
-        # model.is_approved = True
-         flash('Comment has been posted!', 'success')    
+    @expose('approve/<int:id>', methods=['POST'])
+    def  approve_view(self, id):
+         comment = Comment_test.query.get(id)
+         if comment:
+             comment.status = "approved"
+             comment.approved = True
+             db.session.commit()   
+             flash('Comment has been posted!', 'success')    
+         else:
+             flash("Comment not found", "error")
          return redirect(url_for('.index_view'))
 
 
@@ -95,14 +95,6 @@ def index():
 @routes.route('/about')
 def about():
     return render_template('about.html')
-
-
-@routes.route('/post/<int:post_id>', methods=['POST', 'GET'])
-def post(post_id):
-    post = Blogpost.query.filter_by(id=post_id).one()
-    date_posted = post.date_posted.strftime('%d %B, %Y')
-    return render_template('post.html', post=post, date_posted=date_posted)
-
 
 
 
@@ -209,4 +201,36 @@ def sign_up():
 def logout():
     logout_user()
     return redirect(url_for("views.home"))
+
+
+
+@routes.route('/post/<int:post_id>', methods=['POST', 'GET'])
+def post(post_id):
+    post = Blogpost.query.filter_by(id=post_id).one()
+    date_posted = post.date_posted.strftime('%d %B, %Y')
+    return render_template('post.html', post=post, date_posted=date_posted)
+
+
+@app.route('/create-comment/<post_id>', methods=['POST'])
+def create_comment(post_id):
+    text = request.form.get('text')
+    username = request.form.get('username')
+    email = request.form.get('email')
+   # date_posted = post.date_posted.strftime('%d %B, %Y') 
+    if not text:
+        flash("Comment cannot be empty. ", category='error')
+        flash("Kommentar darf nicht leer bleiben. ", category='error')
+    else:
+        post = Blogpost.query.filter_by(id=post_id)
+
+        if post:
+
+            comment= Comment_test(username=username,text=text,
+                                   email=email, post_id = post_id)
+            db.session.add(comment)
+            db.session.commit()
+        flash("Thank you for posting! You comment is waiting for approval.", category = "warning")
+        flash("Vielen Dank für Ihren Beitrag! Ihr Kommentar wartet auf Freigabe.", category = "warning")
+    return redirect(url_for('routes.post', post_id=post_id))
+
 

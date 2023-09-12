@@ -2,7 +2,8 @@ from flask import abort, session
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
-from flask_admin.contrib.sqla import ModelView
+from hashlib import md5
+
 
 class Blogpost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -12,7 +13,7 @@ class Blogpost(db.Model):
         'user.id', ondelete="CASCADE"), nullable=False)
     date_posted = db.Column(db.DateTime)
     content = db.Column(db.Text)
-    comments = db.relationship('Comment', backref='post', passive_deletes=True)
+    comments = db.relationship('Comment_test', backref='post', passive_deletes=True)
 
 
     
@@ -29,26 +30,28 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
     posts = db.relationship('Blogpost', backref='user', passive_deletes=True)
-    comments = db.relationship('Comment', backref='user', passive_deletes=True)
+  # comments = db.relationship('Comment_test', backref='user', passive_deletes=True)
 
 
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(200), nullable=False)
-    date_created = db.Column(db.DateTime(timezone=True), default=func.now())
-    author = db.Column(db.Integer, db.ForeignKey(
-        'user.id', ondelete="CASCADE"), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey(
-        'blogpost.id', ondelete="CASCADE"), nullable=False)
 
 
 class Comment_test(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=False)
     text = db.Column(db.String(200), nullable=False)
-    username = db.Column(db.String(150), unique=True)
-    email =  db.Column(db.String(150), unique=True)
+    email =  db.Column(db.String(150), unique=False)
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
+    status = db.Column(db.String(200), nullable = False, default = "pending")
     approved = db.Column(db.Boolean, default=False)
+    post_id = db.Column(db.Integer, db.ForeignKey(
+        'blogpost.id', ondelete="CASCADE"), nullable=False)
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
+            digest, size)
+
+
+   
 
 
 
