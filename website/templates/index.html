@@ -54,6 +54,7 @@
   </nav>
 
   <!-- Page Header -->
+
   <header class="masthead" style="background-image: url({{url_for('static', filename='img/cascina.jpg')}})">
     <div class="overlay"></div>
     <div class="container">
@@ -61,12 +62,15 @@
         <div class="col-lg-8 col-md-10 mx-auto">
           <div class="site-heading">
             <h1>Lesenswert</h1>
-            <span class="subheading"> Ein Blog über Kunstgeschichte und Digitalisierung </span>
+          <span id="subheading" class="subheading"> Ein Blog über <span id="auto-writing" style="font-style: oblique;"></b></span>
+        </span> 
+            <span class="input-cursor"></span>
           </div>
         </div>
       </div>
     </div>
   </header>
+
 
   <!-- Main Content -->
   <div class="container">
@@ -107,10 +111,16 @@
   <!-- Bootstrap core JavaScript -->
   <script src= "{{ url_for('static', filename = 'jquery.min.js')}}"> </script>
   <script src= "{{ url_for('static', filename = 'bootstrap.min.js')}}"></script>
-  
+
 
   <!-- Custom scripts for this template -->
-  <script src="{{ url_for('static', filename = 'clean-blog.min.js')}}"> </script>>
+  <script src="{{ url_for('static', filename = 'clean-blog.min.js')}}"> </script>
+
+  <script src="{{ url_for('static', filename = 'sentence.js')}}"> </script>
+  
+  
+  
+  
 
 </body>
 

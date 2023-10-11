@@ -30,8 +30,6 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
     posts = db.relationship('Blogpost', backref='user', passive_deletes=True)
-  # comments = db.relationship('Comment_test', backref='user', passive_deletes=True)
-
 
 
 
