@@ -86,11 +86,11 @@
         <div class="col-lg-12 col-md-10 mx-auto">
         {{ post.content|safe }}
         <hr>
-        <!--Start Bootstrap Comment Section-->
-<section class="gradient-custom">
-  <div class="container my-5 py-5">
-    <div class="row d-flex justify-content-center">
-      <div class="col-md-12 col-lg-10 col-xl-8">
+
+
+
+<!--Start Bootstrap Comment Section  -->
+<section  style="background-color: #f7f6f6;">     
         <div class="card">
           <div class="card-body p-4">
             <h4 class="text-center mb-4 pb-2">Comment Section</h4>
@@ -100,7 +100,7 @@
                {% else %}
               {% for comment in post.comments %}
               {% if comment.status == 'approved' %}
-              <div class="comment" data-comment-id="{{ comment.id }}">
+              <div class="comment comment-card" data-comment-id="{{ comment.id }}">
                 <div class="row">
                   <div class="col">
                     <div class="d-flex flex-start">
@@ -111,15 +111,16 @@
                         <div>
                           <div class="d-flex justify-content-between align-items-center">
                             <p class="mb-1">
-                              {{ comment.username }}  <span class="small">- 2 hours ago</span>
+                              <b> {{ comment.username }} </b>  <span class="small">- 2 hours ago - said: </span>
                             </p>
-                            <a href="#!" class="reply-button"><i class="fas fa-reply fa-xs"></i><span class="small"> reply</span></a>
                           </div>
                           <p class="small mb-0">
                             {{ comment.text }}
                           </p>
                         </div>
+                      
                       </div>
+               
                     </div>
                   </div>
                 </div>
@@ -129,52 +130,67 @@
               {% endif %}
             </div>
           </div>
+          
+
         </div>
       </div>
     </div>
   </div>      
 </div>
+
+  
+</div>
 </section>  
+<!-- End Bootstrap Comment Section -->
 
-  <form method="POST" action="/create-comment/{{post.id}}">  
-    {% with messages = get_flashed_messages(category_filter=["warning"]) %}
-      {% if messages %}
-          <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <ul>
-            {% for  message in messages %}
-            <li>{{ message }} 
-            {% endfor %}
-          </li>
-            </ul>   
-          </div> 
-      {% endif %}
-    {% endwith %}         
-    {% with messages = get_flashed_messages(category_filter=["error"]) %}
-      {% if messages %}
-          <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <ul>
-            {% for  message in messages %}
-            <li>{{ message }}</li> 
-            {% endfor %}
-            </ul>   
-          </div> 
-      {% endif %}
-    {% endwith %}
-    <div class="input-group mb-3 custom-input-group">
-      <input type="text" id="username" name="username" class="form-control" placeholder="Username" />
-      <input type="text" id="text" name="text" class="form-control" placeholder="Comment here" />
-      <input type="text" id="email" name="email" class="form-control" placeholder="Email here" />
-      <button type="submit" class="btn btn-primary">Comment</button>
-    </div>
-   </form>
-     
+
+      
+      <div class="input-group mb-3 custom-input-group">
+        <form method="POST" action="/create-comment/{{ post.id }}">
+          {% with messages = get_flashed_messages(category_filter=["warning"]) %}
+            {% if messages %}
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <ul>
+                  {% for message in messages %}
+                    <li>{{ message }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          {% endwith %}
+        
+          {% with messages = get_flashed_messages(category_filter=["error"]) %}
+            {% if messages %}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ul>
+                  {% for message in messages %}
+                    <li>{{ message }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          {% endwith %}
+        
+          <div class="input-group mb-3 custom-input-group">
+            <p> </p>
+            <input type="text" id="username" name="username" class="form-control" placeholder="Username" />
+            <input type="text" id="email" name="email" class="form-control" placeholder="Email here" />
+            <input type="text" id="text" name="text" class="form-control" placeholder="Comment here" />
+            <button type="submit" class="btn btn-primary small-button">Comment</button>
+          </div>
+        </form>
+        
+      </div>
   </div>
-    </div>
+</div>
+
+
+
+
+     
+   </div>
+     </div>
           </article>
-
-
-
-<!-- End Bootstrap Comment Section-->
 
 <hr>
    
@@ -198,8 +214,6 @@
   <!-- Bootstrap core JavaScript -->
   <script src= "{{ url_for('static', filename = 'jquery.min.js')}}"> </script>
   <script src= "{{ url_for('static', filename = 'bootstrap.min.js')}}"></script>
-  
-
   <!-- Custom scripts for this template -->
   <script src="{{ url_for('static', filename = 'clean-blog.min.js')}}"> </script>>
 
