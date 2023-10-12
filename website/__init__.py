@@ -33,7 +33,7 @@ def create_app():
      app.config['MAIL_USE_SSL'] = True
      app.config['MAIL_USE_TLS'] = False
      app.config['MAIL_USERNAME'] = 'lesenswert23@gmail.com'
-     app.config['MAIL_PASSWORD'] = 'bpaq uxsm ilkm lpry'
+     app.config['MAIL_PASSWORD'] = 'token'
      app.config['MAIL_DEBUG'] = True
      app.config['EXPLAIN_TEMPLATE_LOADING'] = True
     ## config still not created
