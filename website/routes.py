@@ -8,6 +8,7 @@ import os.path as op
 from flask import Blueprint, Flask, abort, render_template, request, redirect, session, url_for, flash
 from flask_login import LoginManager, UserMixin, login_required, logout_user
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
 from sqlalchemy.sql import func
 from flask_mail import Mail, Message
 from flask_admin import Admin, expose
@@ -17,9 +18,14 @@ from .models import Blogpost, Comment_test, User
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from . import db, mail, app
+from flask_humanize import Humanize
 
 routes = Blueprint("routes" , __name__)
 admin = Admin(app)
+humanize = Humanize(app)
+
+
+
 
 # create class to protect admin view, overwrites is_accessible method from Class ModelView
 class SecureView(ModelView):

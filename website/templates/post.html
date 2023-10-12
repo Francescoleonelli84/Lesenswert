@@ -98,7 +98,7 @@
               {% if post.comments|length == 0 %}
                <p>At the moment there are no comments for this post.</p>
                {% else %}
-              {% for comment in post.comments %}
+              {% for comment in post.comments|sort(attribute='date_created', reverse = True) %}
               {% if comment.status == 'approved' %}
               <div class="comment comment-card" data-comment-id="{{ comment.id }}">
                 <div class="row">
@@ -111,7 +111,7 @@
                         <div>
                           <div class="d-flex justify-content-between align-items-center">
                             <p class="mb-1">
-                              <b> {{ comment.username }} </b>  <span class="small">- 2 hours ago - said: </span>
+                              <b> {{ comment.username }} </b>  <span class="small">- {{ comment.date_created.strftime('%d.%m.%Y')  }} - <i> said: </i> </span>
                             </p>
                           </div>
                           <p class="small mb-0">
