@@ -164,7 +164,7 @@
               <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <ul>
                   {% for message in messages %}
-                    <li>{{ message }}</li>
+                    <p>{{ message }}</p>
                   {% endfor %}
                 </ul>
               </div>
@@ -176,7 +176,7 @@
             <input type="text" id="username" name="username" class="form-control" placeholder="Username" />
             <input type="text" id="email" name="email" class="form-control" placeholder="Email here" />
             <input type="text" id="text" name="text" class="form-control" placeholder="Comment here" />
-            <button type="submit" class="btn btn-primary small-button">Comment</button>
+            <button id="comment_button"type="submit" class="btn btn-primary small-button">Comment</button>
           </div>
         </form>
         

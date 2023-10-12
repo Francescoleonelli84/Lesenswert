@@ -12,19 +12,15 @@
 	flex-direction: column;
 	align-items: stretch;
   }
-  
+
+
   /* Stile per gli input */
   .custom-input-group input[type="text"] {
-	width: 100%;
-	padding: 10px; /* Puoi personalizzare il padding a tuo piacimento */
-	margin-bottom: 10px; /* Spazio tra gli input */
+	width: 50%;
+	padding: 10px; 
+	margin-bottom: 10px; 
   }
   
-  /* Stile per il pulsante */
-  .custom-input-group button[type="submit"] {
-	width: 100%;
-  }
-
 
 .comment img {
   border-radius: 50%; /* Rendi le immagini dei commenti circolari */
@@ -50,3 +46,18 @@
 	margin-top: 20px;
 	width: 80%;
   }
+
+#comment_button {
+
+width: 250px;
+border: none;
+color: white;
+padding: 15px 32px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+margin: 4px 2px;
+cursor: pointer;
+}
+

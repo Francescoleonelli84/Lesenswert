@@ -1,5 +1,5 @@
  // Parole da scrivere e cancellare
- var words = ["Kunst", "Digitalisierung"];
+ var words = ["Kunst",  "Digitalisierung"];
  var subheading = document.getElementById("auto-writing");
  var currentIndex = 0;
 

@@ -34,6 +34,7 @@ class SecureView(ModelView):
 
 
 class CommentView(ModelView):
+    column_list = ('id', 'username', 'text', 'email', 'date_created', 'status', 'approved', 'post_id')
     def approve_comment(view, context, model, name):
 
         approve_url = url_for('.approve_view', id =model.id)
@@ -57,6 +58,9 @@ class CommentView(ModelView):
              comment.status = "approved"
              comment.approved = True
              db.session.commit()   
+             msg = Message('Comment Approved', sender='lesenswert23@gmail.com', recipients=[comment.email])
+             msg.body = 'Your comment has been approved! Thank you very much!\n\nFrancesco from Lesenswert'
+             mail.send(msg)
              flash('Comment has been posted!', 'success')    
          else:
              flash("Comment not found", "error")
@@ -67,21 +71,21 @@ class CommentView(ModelView):
 admin.add_view(SecureView(Blogpost, db.session))
 admin.add_view(CommentView(Comment_test, db.session ))
 
-@routes.route('/contact', methods=["POST", "GET"])
+
+
+
+@routes.route('/contact', methods=["GET", "POST"])
 def contact():
-
-    if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        message = request.form.get('message')
-        phone = request.form.get('phone')
-        msg = Message(subject=f"E-Mail da {name}", body=f"Name: {name}\nE-Mail: {email}\nTelefono: {phone}\nMessaggio: {message}",
-                      sender="francesco.leonelli84@gmail.com", recipients=['francesco.leonelli84@gmail.com'])
-        mail.send(msg)
-
-        return render_template('contact.html', success=True)
-
-    return render_template('contact.html')
+        if request.method == 'POST':
+                name = request.form.get('name')
+                email = request.form.get('email')
+                message = request.form.get('message')
+                msg = Message(subject=f"E-Mail da {name}", body=f"Name: {name}\nE-Mail: {email}\nMessaggio: {message}",
+                        sender="lesenswert234@gmail.com", recipients=['francesco.leonelli84@libero.it'])
+                mail.send(msg)
+                flash('The message has been sent. I will get to you as soon as possible', 'success')
+                return redirect('/contact') 
+        return render_template('contact.html')
 
 
 @routes.route('/')
@@ -219,8 +223,7 @@ def create_comment(post_id):
     email = request.form.get('email')
    # date_posted = post.date_posted.strftime('%d %B, %Y') 
     if not text:
-        flash("Comment cannot be empty. ", category='error')
-        flash("Kommentar darf nicht leer bleiben. ", category='error')
+        flash("Comment cannot be empty ", category='error')
     else:
         post = Blogpost.query.filter_by(id=post_id)
 
@@ -230,8 +233,7 @@ def create_comment(post_id):
                                    email=email, post_id = post_id)
             db.session.add(comment)
             db.session.commit()
-        flash("Thank you for posting! You comment is waiting for approval.", category = "warning")
-        flash("Vielen Dank für Ihren Beitrag! Ihr Kommentar wartet auf Freigabe.", category = "warning")
+        flash("Thank you for posting! You comment is waiting for approval", category = "warning")
     return redirect(url_for('routes.post', post_id=post_id))
 
 

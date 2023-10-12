@@ -32,14 +32,15 @@ def create_app():
      app.config['MAIL_PORT'] = 465
      app.config['MAIL_USE_SSL'] = True
      app.config['MAIL_USE_TLS'] = False
-     app.config['MAIL_USERNAME'] = 'username'
-     app.config['MAIL_PASSWORD'] = 'password'
+     app.config['MAIL_USERNAME'] = 'lesenswert23@gmail.com'
+     app.config['MAIL_PASSWORD'] = 'bpaq uxsm ilkm lpry'
      app.config['MAIL_DEBUG'] = True
      app.config['EXPLAIN_TEMPLATE_LOADING'] = True
     ## config still not created
         #app.config.from_pyfile('config.py')
      login_manager = LoginManager()
      login_manager.init_app(app)
+     mail.init_app(app)
      db.init_app(app)
      from .routes import routes
      #from .auth import auth

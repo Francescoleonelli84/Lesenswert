@@ -3,6 +3,11 @@ from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 from hashlib import md5
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired,Email
+
+
 
 
 class Blogpost(db.Model):
@@ -49,7 +54,9 @@ class Comment_test(db.Model):
             digest, size)
 
 
-   
-
-
-
+class ContactForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    email = StringField("Email", validators=[DataRequired()])
+    subject = StringField("Subject", validators=[DataRequired()])
+    message = TextAreaField("Message", validators=[DataRequired()])
+    submit = SubmitField("Send") 
