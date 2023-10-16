@@ -5,6 +5,9 @@ startbootstrap-clean-blog-gh-pages/
 blog.db
 setup.bat
 img
-__init__.py
+.env
+config.py
+.vscode/
+
 
 

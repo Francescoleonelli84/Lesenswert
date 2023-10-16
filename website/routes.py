@@ -20,78 +20,77 @@ from flask_login import login_user, logout_user, login_required, current_user
 from . import db, mail, app
 from flask_humanize import Humanize
 
-routes = Blueprint("routes" , __name__)
+routes = Blueprint("routes", __name__)
 admin = Admin(app)
 humanize = Humanize(app)
 
 
-
-
 # create class to protect admin view, overwrites is_accessible method from Class ModelView
 class SecureView(ModelView):
-    
+
     def is_accessible(self):
         if "logged_in" in session:
             return True
         else:
             abort(403)
 
-    
-
 
 class CommentView(ModelView):
-    column_list = ('id', 'username', 'text', 'email', 'date_created', 'status', 'approved', 'post_id')
+    column_list = ('id', 'username', 'text', 'email',
+                   'date_created', 'status', 'approved', 'post_id')
+
     def approve_comment(view, context, model, name):
 
-        approve_url = url_for('.approve_view', id =model.id)
+        approve_url = url_for('.approve_view', id=model.id)
         html = '''
                     <form action="{approve_url}" method="POST">
                     <button type='submit'>
                     Approve </button>
                      </form
             '''.format(approve_url=approve_url)
-    
+
         return Markup(html)
-    
+
     column_formatters = {
         'approved': approve_comment
     }
 
     @expose('approve/<int:id>', methods=['POST'])
-    def  approve_view(self, id):
-         comment = Comment_test.query.get(id)
-         if comment:
-             comment.status = "approved"
-             comment.approved = True
-             db.session.commit()   
-             msg = Message('Comment Approved', sender='lesenswert23@gmail.com', recipients=[comment.email])
-             msg.body = 'Your comment has been approved! Thank you very much!\n\nFrancesco from Lesenswert'
-             mail.send(msg)
-             flash('Comment has been posted!', 'success')    
-         else:
-             flash("Comment not found", "error")
-         return redirect(url_for('.index_view'))
+    def approve_view(self, id):
+        comment = Comment_test.query.get(id)
+        if comment:
+            comment.status = "approved"
+            comment.approved = True
+            db.session.commit()
+            msg = Message(
+                'Comment Approved', sender= app.config.get('MAIL_USERNAME'), recipients=[comment.email])
+            msg.body = 'Your comment has been approved! Thank you very much!\n\nFrancesco from Lesenswert'
+            mail.send(msg)
+            flash('Comment has been posted!', 'success')
+        else:
+            flash("Comment not found", "error")
+        return redirect(url_for('.index_view'))
 
 
 # create admin view
 admin.add_view(SecureView(Blogpost, db.session))
-admin.add_view(CommentView(Comment_test, db.session ))
-
-
+admin.add_view(CommentView(Comment_test, db.session))
 
 
 @routes.route('/contact', methods=["GET", "POST"])
 def contact():
-        if request.method == 'POST':
-                name = request.form.get('name')
-                email = request.form.get('email')
-                message = request.form.get('message')
-                msg = Message(subject=f"E-Mail da {name}", body=f"Name: {name}\nE-Mail: {email}\nMessaggio: {message}",
-                        sender="lesenswert234@gmail.com", recipients=['francesco.leonelli84@libero.it'])
-                mail.send(msg)
-                flash('The message has been sent. I will get to you as soon as possible', 'success')
-                return redirect('/contact') 
-        return render_template('contact.html')
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message = request.form.get('message')
+        sender_mail = app.config.get('MAIL_USERNAME')
+        recipients_mail = [app.config.get('MAIL_RECIPIENT')]
+        msg = Message(subject=f"E-Mail da {name}", body=f"Name: {name}\nE-Mail: {email}\nMessaggio: {message}",
+                      sender=sender_mail, recipients=recipients_mail)
+        mail.send(msg)
+        flash('The message has been sent. I will get to you as soon as possible', 'success')
+        return redirect('/contact')
+    return render_template('contact.html')
 
 
 @routes.route('/')
@@ -102,40 +101,34 @@ def index():
    # return redirect(url_for('routes.index'))
 
 
-
 @routes.route('/about')
 def about():
     return render_template('about.html')
 
 
-
 @routes.route('/login', methods=["GET", "POST"])
 def admin_login():
     if request.method == 'POST':
-        if request.form['username'] == 'admin' and \
-                request.form['pw'] == 'secret':
-            session['logged_in'] = True 
+        if request.form['username'] == app.config.get('ADMIN_USERNAME') and \
+                request.form['pw'] == app.config.get('ADMIN_PW'):
+            session['logged_in'] = True
             return redirect('/admin')
         else:
-            return render_template('login.html', failed = True)
+            return render_template('login.html', failed=True)
     return render_template('login.html')
 
 
-@routes.route("/admin_logout")
+@routes.route("/logout")
 def admin_logout():
     session.clear()
     return redirect("/")
 
 
-
-
-#secret page to add the post
+# secret page to add the post
 @routes.route('/add')
 @login_required
 def add():
     return render_template('add.html')
-
-
 
 
 @routes.route('/sign_in')
@@ -154,6 +147,7 @@ def addpost():
     db.session.add(post)
     db.session.commit()
     return redirect(url_for('index'))
+
 
 @routes.route("/login", methods=['GET', 'POST'])
 def user_login():
@@ -214,7 +208,6 @@ def logout():
     return redirect(url_for("views.home"))
 
 
-
 @routes.route('/post/<int:post_id>', methods=['POST', 'GET'])
 def post(post_id):
     post = Blogpost.query.filter_by(id=post_id).one()
@@ -227,7 +220,7 @@ def create_comment(post_id):
     text = request.form.get('text')
     username = request.form.get('username')
     email = request.form.get('email')
-   # date_posted = post.date_posted.strftime('%d %B, %Y') 
+   # date_posted = post.date_posted.strftime('%d %B, %Y')
     if not text:
         flash("Comment cannot be empty ", category='error')
     else:
@@ -235,11 +228,10 @@ def create_comment(post_id):
 
         if post:
 
-            comment= Comment_test(username=username,text=text,
-                                   email=email, post_id = post_id)
+            comment = Comment_test(username=username, text=text,
+                                   email=email, post_id=post_id)
             db.session.add(comment)
             db.session.commit()
-        flash("Thank you for posting! You comment is waiting for approval", category = "warning")
+        flash("Thank you for posting! You comment is waiting for approval",
+              category="warning")
     return redirect(url_for('routes.post', post_id=post_id))
-
-
