@@ -14,11 +14,10 @@ class Blogpost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50))
     subtitle = db.Column(db.String(50))
-    author = db.Column(db.String(20), db.ForeignKey(
-        'user.id', ondelete="CASCADE"), nullable=False)
+    author = db.Column(db.String(20))
     date_posted = db.Column(db.DateTime)
     content = db.Column(db.Text)
-    comments = db.relationship('Comment_test', backref='post', passive_deletes=True)
+    comments = db.relationship('Comment', backref='post', passive_deletes=True)
 
 
     
@@ -34,11 +33,11 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
-    posts = db.relationship('Blogpost', backref='user', passive_deletes=True)
+  #  posts = db.relationship('Blogpost', backref='user', passive_deletes=True)
 
 
 
-class Comment_test(db.Model):
+class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=False)
     text = db.Column(db.String(200), nullable=False)

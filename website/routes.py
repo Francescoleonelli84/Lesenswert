@@ -1,30 +1,23 @@
-
 from datetime import datetime
-import timeago
-import flask_login
-import pdb
-import os
 import os.path as op
-from flask import Blueprint, Flask, abort, render_template, request, redirect, session, url_for, flash
-from flask_login import LoginManager, UserMixin, login_required, logout_user
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import desc
-from sqlalchemy.sql import func
-from flask_mail import Mail, Message
+from flask import Blueprint,  abort, render_template, request, redirect, session, url_for, flash
+from flask_login import  login_required, logout_user
+from flask_mail import  Message
 from flask_admin import Admin, expose
 from flask_admin.contrib.sqla import ModelView
 from markupsafe import Markup
-from .models import Blogpost, Comment_test, User
+from .models import Blogpost, Comment, User
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from . import db, mail, app
 from flask_humanize import Humanize
-
+from google_recaptcha import ReCaptcha
 
 
 routes = Blueprint("routes", __name__)
 admin = Admin(app)
 humanize = Humanize(app)
+
 
 
 # create class to protect admin view, overwrites is_accessible method from Class ModelView
@@ -59,13 +52,13 @@ class CommentView(ModelView):
 
     @expose('approve/<int:id>', methods=['POST'])
     def approve_view(self, id):
-        comment = Comment_test.query.get(id)
+        comment = Comment.query.get(id)
         if comment:
             comment.status = "approved"
             comment.approved = True
             db.session.commit()
             msg = Message(
-                'Comment Approved', sender= app.config.get('MAIL_USERNAME'), recipients=[comment.email])
+                'Comment Approved', sender=app.config.get('MAIL_USERNAME'), recipients=[comment.email])
             msg.body = 'Your comment has been approved! Thank you very much!\n\nFrancesco from Lesenswert'
             mail.send(msg)
             flash('Comment has been posted!', 'success')
@@ -76,7 +69,7 @@ class CommentView(ModelView):
 
 # create admin view
 admin.add_view(SecureView(Blogpost, db.session))
-admin.add_view(CommentView(Comment_test, db.session))
+admin.add_view(CommentView(Comment, db.session))
 
 
 @routes.route('/contact', methods=["GET", "POST"])
@@ -100,8 +93,7 @@ def contact():
 def index():
     posts = Blogpost.query.order_by(Blogpost.date_posted.desc()).all()
     return render_template('index.html', posts=posts)
-   # return redirect(url_for('routes.index'))
-
+   
 
 @routes.route('/about')
 def about():
@@ -230,7 +222,7 @@ def create_comment(post_id):
 
         if post:
 
-            comment = Comment_test(username=username, text=text,
+            comment = Comment(username=username, text=text,
                                    email=email, post_id=post_id)
             db.session.add(comment)
             db.session.commit()

@@ -34,6 +34,7 @@ def create_app():
      app.config['MAIL_USE_TLS'] = False
     #! ->! https://myaccount.google.com/apppasswords 
  #    app.config['MAIL_RECIPIENT'] = 'francesco.leonelli84@libero.it'
+     app.config.get('SECRET_KEY')
      app.config.get('MAIL_SERVER')
      app.config.get('MAIL_USERNAME')
      app.config.get('MAIL_PASSWORD')
