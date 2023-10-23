@@ -5,7 +5,7 @@ from flask_admin import Admin
 from flask_login import LoginManager
 from flask_login import LoginManager
 from os import path
-
+from config import MAIL_SERVER, MAIL_USERNAME, MAIL_PASSWORD
 
 # Create directory for file fields to use
 ##file_path = op.join(op.dirname(__file__), 'files')
@@ -33,9 +33,11 @@ def create_app():
      app.config['MAIL_USE_SSL'] = True
      app.config['MAIL_USE_TLS'] = False
     #! ->! https://myaccount.google.com/apppasswords 
+ #    app.config['MAIL_RECIPIENT'] = 'francesco.leonelli84@libero.it'
      app.config.get('MAIL_SERVER')
      app.config.get('MAIL_USERNAME')
      app.config.get('MAIL_PASSWORD')
+     app.config.get('MAIL_RECIPIENT')
      app.config['MAIL_DEBUG'] = True
      app.config['EXPLAIN_TEMPLATE_LOADING'] = True
     ## config still not created
@@ -46,6 +48,7 @@ def create_app():
      db.init_app(app)
      from .routes import routes
      #from .auth import auth
+
      app.register_blueprint(routes, url_prefix="/")
      #app.register_blueprint(auth, url_prefix="/")
 

@@ -20,6 +20,8 @@ from flask_login import login_user, logout_user, login_required, current_user
 from . import db, mail, app
 from flask_humanize import Humanize
 
+
+
 routes = Blueprint("routes", __name__)
 admin = Admin(app)
 humanize = Humanize(app)
@@ -83,10 +85,10 @@ def contact():
         name = request.form.get('name')
         email = request.form.get('email')
         message = request.form.get('message')
-        sender_mail = app.config.get('MAIL_USERNAME')
-        recipients_mail = [app.config.get('MAIL_RECIPIENT')]
+       # sender_mail = app.config.get('MAIL_USERNAME')
+      #  recipients_mail = app.config.get('MAIL_RECIPIENT')
         msg = Message(subject=f"E-Mail da {name}", body=f"Name: {name}\nE-Mail: {email}\nMessaggio: {message}",
-                      sender=sender_mail, recipients=recipients_mail)
+                      sender='lesenswert2023@gmail.com', recipients=['francesco.leonelli84@libero.it'])
         mail.send(msg)
         flash('The message has been sent. I will get to you as soon as possible', 'success')
         return redirect('/contact')
